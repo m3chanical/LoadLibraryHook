@@ -5,27 +5,27 @@ cmake_minimum_required (VERSION 3.8)
 
 project ("LoadLibraryHook")
 
-add_executable (LoadLibraryHook "LoadLibraryHook.cpp" "LoadLibraryHook.h")
+set(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
+set(PROJECT_BIN  ${PROJECT_ROOT}/bin)
+set(PROJECT_LIB  ${PROJECT_ROOT}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY          ${PROJECT_BIN})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG    ${PROJECT_BIN})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE  ${PROJECT_BIN})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY          ${PROJECT_BIN})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG    ${PROJECT_BIN})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE  ${PROJECT_BIN})
 
-get_filename_component(PLH_DIR "./" ABSOLUTE)
-include_directories(${PLH_DIR})
+find_package(PolyHook_2 CONFIG REQUIRED)
 
-if(MSVC)
-  # force static lib
-  set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_RELEASE
-        )
-	foreach(CompilerFlag ${CompilerFlags})
-		string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-	endforeach()
-endif()
+set(SOURCE_FILES
+	"LoadLibraryHook.cpp"
+	"LoadLibraryHook.h"	
+)
 
-# TODO: Add tests and install targets if needed.
-target_compile_options(${PROJECT_NAME} PRIVATE /std:c++latest)
-target_link_libraries(${PROJECT_NAME} "F:\\vs_projects\\LoadLibraryHook\\Zydis.lib")
-target_link_libraries(${PROJECT_NAME} "F:\\vs_projects\\LoadLibraryHook\\PolyHook_2.lib")
+add_executable (LoadLibraryHook ${SOURCE_FILES})
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+target_link_libraries(${PROJECT_NAME} PRIVATE PolyHook_2::PolyHook_2)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_auto_type)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

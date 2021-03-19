@@ -13,3 +13,4 @@ _deps
 build64/
 out/
 .vs/
+bin/
